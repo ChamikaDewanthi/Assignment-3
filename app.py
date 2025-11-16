@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from db_logic import get_tables, perform_operation
+import json
 
 app = Flask(__name__)
 
@@ -23,7 +24,10 @@ def execute():
     query = data.get('query', '')
     
     result = perform_operation(db_type, table, operation, query)
-    return jsonify({'result': result})
+    #return jsonify({'result': result})
+    
+    json_result = json.dumps({'result': result}, indent=4, ensure_ascii=False)
+    return json_result
 
 if __name__ == '__main__':
     app.run(debug=True)
