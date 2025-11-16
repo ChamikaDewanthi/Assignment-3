@@ -81,7 +81,7 @@ def get_postgres_table(table):
 def mongo_query_handler(db_type, query):
     try:
         # Split query to seperate output attributes, collection and where conditions
-        split_query = shlex.split(query)
+        split_query = shlex.split(query.replace(",",""))
         # Validate for a select query
         if split_query[0].lower() != "select":
             return "This operation can be used only for select queries"
@@ -148,7 +148,7 @@ def postgres_query_handler(query):
 def mongo_update_handler(db_type, query):
     try:
         # Split query to seperate update statements, collection and where conditions
-        split_query = shlex.split(query)
+        split_query = shlex.split(query.replace(",",""))
         # Validate for a update query
         if split_query[0].lower() != "update":
             return "This operation can be used only for update queries"
