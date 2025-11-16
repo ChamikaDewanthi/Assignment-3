@@ -2,6 +2,8 @@ import pymongo
 import psycopg
 import shlex
 import pandas as pd
+from collections import OrderedDict
+import json
 
 # postgres DB Connection
 postgres_db = psycopg.connect(host="localhost", port="5432", dbname="Aurora_America", user="postgres", password="admin")
@@ -56,7 +58,7 @@ def get_mongo_table(db_type, table):
         collection = mongo_db_europe[mongo_collections_europe[int(table)]]
     #collection = mongo_db[mongo_collections[int(table)]]
     data = collection.find({}, {"_id":0})
-    results = list(data)
+    results = list(sort_columns(data))
     return results
 
 # Function to send list of data from postgres table
@@ -117,7 +119,7 @@ def mongo_query_handler(db_type, query):
             data = mongo_collection.aggregate([filter_condition, mongo_output])
         else:
             data = mongo_collection.aggregate([{'$match': {}}, mongo_output])
-        results = list(data)
+        results = list(sort_columns(data))
     except:
         results = "Invalid query"
     return results
@@ -187,7 +189,7 @@ def mongo_update_handler(db_type, query):
         # Fetch updated rows
         mongo_output = {"_id":0}
         data = mongo_collection.find(filter_list, mongo_output)
-        results = list(data)
+        results = list(sort_columns(data))
         return results
     except:
         results = "Invalid query"
@@ -245,3 +247,13 @@ def cast_mongo_value(python_type, value):
     if python_type == bool:
         return value.lower() == "true"
     return value
+
+# Function to preserve column order as table
+def sort_columns(data):
+    ordered_data = []
+    for doc in data:
+        ordered_doc = OrderedDict()
+        for key in doc:
+            ordered_doc[key] = doc[key]
+        ordered_data.append(ordered_doc)
+    return ordered_data
